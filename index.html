@@ -4,7 +4,12 @@
   <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <style>
+  .wrapper{
+    display:inline-block;
+    position:relative;
+  }
   #crop{
+    position:relative;
     display:inline-block;
     background-image: url(./lenna.png);
     background-repeat:no-repeat;
@@ -24,6 +29,16 @@
     margin:0 1em;
   }
 
+  .face{
+    display:none;
+    position:absolute;
+    outline:2px solid #5DFC0A;
+  }
+
+  .wrapper:hover .face, #crop:hover .face{
+    display:inline-block;
+  }
+
   </style>
 </head>
 <body class="container">
@@ -31,7 +46,10 @@
   <div class="row">
     <div class="col-sm-6">
       <h3>Source</h3>
-      <img id="source" src="./lenna.png"/>
+      <div class="wrapper">
+        <img id="source" src="./lenna.png"/>
+        <div class="face"></div>
+      </div>
     </div>
     <div class="col-sm-6">
       <h3>
@@ -57,14 +75,29 @@
       var w = $('.size .width').val();
       var h = $('.size .height').val();
       if(!!face){
-        var x = face.x + (face.width - w)/2;
-        var y = face.y + (face.height - h)/2;
+        var offset = {
+          x : (face.width - w)/2,
+          y : (face.height - h)/2
+        }
+        var x = face.x + offset.x
+        var y = face.y + offset.y
         $crop.css({
           'width': w,
           'height': h,
           'background-position-x': -x,
           'background-position-y': -y,
         }).show();
+
+        if(!$('#crop .face').length){
+          $('<div class="face"/>').appendTo('#crop');
+        }
+
+        $('#crop .face').css({
+          'width': face.width,
+          'height': face.height,
+          'top': -offset.y,
+          'left': -offset.x
+        })
       }
 
     }
@@ -77,6 +110,13 @@
     tracking.track('#source', tracker);
     tracker.on('track', function(event) {
       face = event.data[0];
+      $('<div class="face"/>').css({
+        'width': face.width,
+        'height': face.height,
+        'top': face.y,
+        'left': face.x
+      }).appendTo('.wrapper');
+
       render();
     });
   });
