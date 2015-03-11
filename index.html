@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <style>
+  #crop{
+    display:inline-block;
+    background-image: url(./lenna.png);
+    background-repeat:no-repeat;
+  }
+
+  .size{
+    float:right;
+  }
+
+  .size input{
+    float:left;
+    width:80px;
+    text-align:center;
+  }
+  .size div{
+    float:left;
+    margin:0 1em;
+  }
+
+  </style>
+</head>
+<body class="container">
+  <h1>Tracking.js</h1>
+  <div class="row">
+    <div class="col-sm-6">
+      <h3>Source</h3>
+      <img id="source" src="./lenna.png"/>
+    </div>
+    <div class="col-sm-6">
+      <h3>
+        <div class="size">
+          <input class="width" type="number" class="form-control" value="200"/>
+          <div>x</div>
+          <input class="height" type="number" class="form-control" value="200"/>
+        </div>
+        Crop
+      </h3>
+      <div id="crop"></div>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script type="text/javascript" src="./lib/tracking-min.js"></script>
+  <script type="text/javascript" src="./lib/data/face-min.js"></script>
+  <script>
+  $(function() {
+    var $crop = $('#crop').hide();
+    var face = null;
+
+    function render(){
+      var w = $('.size .width').val();
+      var h = $('.size .height').val();
+      if(!!face){
+        var x = face.x + (face.width - w)/2;
+        var y = face.y + (face.height - h)/2;
+        $crop.css({
+          'width': w,
+          'height': h,
+          'background-position-x': -x,
+          'background-position-y': -y,
+        }).show();
+      }
+
+    }
+
+    $('.size input').change(render);
+
+
+    var tracker = new tracking.ObjectTracker(['face']);
+    tracker.setStepSize(1.7);
+    tracking.track('#source', tracker);
+    tracker.on('track', function(event) {
+      face = event.data[0];
+      render();
+    });
+  });
+  </script>
+</body>
+</html>
